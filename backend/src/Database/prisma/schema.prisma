@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Doador {
+    id            String   @id @default(uuid())
+    nome          String
+    email         String   @unique
+    telefone      String   @unique
+    data_cadastro DateTime @default(now())
+    updated_at    DateTime @updatedAt
+    Doacao        Doacao[]
+
+    @@map("doadores")
+}
+
+model Pagamento {
+    id               String   @id @default(uuid())
+    chave_pix        String
+    qr_code          Json
+    status           String
+    data_criacao     DateTime @default(now())
+    data_expiracao   DateTime
+    data_confirmacao DateTime
+    updated_at       DateTime @updatedAt
+    Doacao           Doacao   @relation(fields: [doacaoId], references: [id])
+    doacaoId         String   @unique
+
+    @@map("pagamentos")
+}
+
+model Doacao {
+    id               String     @id @default(uuid())
+    valor            Decimal
+    mensagem         String?
+    status           String
+    data_criacao     DateTime   @default(now())
+    data_confirmacao DateTime
+    updated_at       DateTime   @updatedAt
+    Doador           Doador?    @relation(fields: [doadorId], references: [id])
+    doadorId         String?
+    Pagamento        Pagamento?
+
+    @@map("doacoes")
+}

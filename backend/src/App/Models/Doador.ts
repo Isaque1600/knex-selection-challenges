@@ -1,7 +1,7 @@
 import { prisma } from "@/Lib/prisma";
 
 export class Doador {
-  static async create(nome: string, email: string, telefone: string) {
+  static async create({ nome, email, telefone }: { nome: string; email: string; telefone: string }) {
     return await prisma.doador.create({
       data: {
         nome,
@@ -11,7 +11,7 @@ export class Doador {
     });
   }
 
-  static async update(id: string, nome: string, email: string, telefone: string) {
+  static async update(id: string, { nome, email, telefone }: { nome?: string; email?: string; telefone?: string }) {
     return await prisma.doador.update({
       where: {
         id,

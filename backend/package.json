@@ -28,7 +28,8 @@
   "dependencies": {
     "@prisma/client": "5.22.0",
     "express": "^4.21.1",
-    "mercadopago": "^2.0.15"
+    "mercadopago": "^2.0.15",
+    "zod": "^3.23.8"
   },
   "prisma": {
     "schema": "./src/Database/prisma/schema.prisma"

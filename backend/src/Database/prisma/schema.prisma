@@ -26,16 +26,16 @@ model Doador {
 }
 
 model Pagamento {
-    id               String   @id @default(uuid())
+    id               String    @id @default(uuid())
     chave_pix        String
     qr_code          Json
-    status           String
-    data_criacao     DateTime @default(now())
-    data_expiracao   DateTime
-    data_confirmacao DateTime
-    updated_at       DateTime @updatedAt
-    Doacao           Doacao   @relation(fields: [doacaoId], references: [id])
-    doacaoId         String   @unique
+    status           Status    @default(PENDENTE)
+    data_criacao     DateTime  @default(now())
+    data_expiracao   DateTime?
+    data_confirmacao DateTime?
+    updated_at       DateTime  @updatedAt
+    Doacao           Doacao    @relation(fields: [doacaoId], references: [id])
+    doacaoId         String    @unique
 
     @@map("pagamentos")
 }
@@ -44,13 +44,19 @@ model Doacao {
     id               String     @id @default(uuid())
     valor            Decimal
     mensagem         String?
-    status           String
+    status           Status     @default(PENDENTE)
     data_criacao     DateTime   @default(now())
-    data_confirmacao DateTime
+    data_confirmacao DateTime?
     updated_at       DateTime   @updatedAt
     Doador           Doador?    @relation(fields: [doadorId], references: [id])
     doadorId         String?
     Pagamento        Pagamento?
 
     @@map("doacoes")
+}
+
+enum Status {
+    PENDENTE
+    CONFIRMADO
+    CANCELADO
 }

@@ -19,8 +19,7 @@ API REST em NodeJS para geranciar as doações para os doguinhos que moram no ca
   - [Pagamentos](#pagamentos)
 
 - [Tecnologias](#tecnologias)
-
----
+- ***
 
 ## Requisitos
 
@@ -573,3 +572,7 @@ No servidor foram utilizadas as seguintes tecnologias:
 - [dotENV](https://github.com/motdotla/dotenv)
 - [MercadoPagoSDK](https://github.com/mercadopago/sdk-nodejs) para Node
 - [date-fns](https://github.com/date-fns/date-fns)
+
+## Ideias a implementar
+
+Como o projeto está em desenvolvimento, a implementação de alguns recursos ficaram faltando, como a possibilidade de registrar Doações continuas e automáticas.

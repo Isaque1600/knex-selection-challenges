@@ -19,14 +19,14 @@ export class Pagamento {
       doacaoId: string;
       status: Status;
       data_criacao?: string;
-      data_expiracao?: Date;
+      data_expiracao: Date;
       data_confirmacao?: string;
     },
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx || prisma;
 
-    return client.pagamento.create({
+    return await client.pagamento.create({
       data: {
         paymentId,
         chave_pix,
@@ -63,7 +63,7 @@ export class Pagamento {
   ) {
     const client = tx || prisma;
 
-    return client.pagamento.update({
+    return await client.pagamento.update({
       where: {
         id,
       },
@@ -80,7 +80,7 @@ export class Pagamento {
   }
 
   static async get(id: string) {
-    return prisma.pagamento.findUniqueOrThrow({
+    return await prisma.pagamento.findUniqueOrThrow({
       where: {
         id,
       },
@@ -88,21 +88,24 @@ export class Pagamento {
   }
 
   static async getByDoacaoId(doacaoId: string) {
-    return prisma.pagamento.findUniqueOrThrow({
+    return await prisma.pagamento.findUniqueOrThrow({
       where: {
         doacaoId,
       },
     });
   }
 
-  static async getAll() {
-    return prisma.pagamento.findMany();
+  static async getAll(where?: Prisma.PagamentoWhereInput, orderBy?: Prisma.PagamentoOrderByWithRelationInput) {
+    return await prisma.pagamento.findMany({
+      where,
+      orderBy,
+    });
   }
 
   static async delete(id: string, tx?: Prisma.TransactionClient) {
     const client = tx || prisma;
 
-    return client.pagamento.delete({
+    return await client.pagamento.delete({
       where: {
         id,
       },

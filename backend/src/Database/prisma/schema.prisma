@@ -49,8 +49,8 @@ model Doacao {
     data_criacao     DateTime   @default(now())
     data_confirmacao DateTime?
     updated_at       DateTime   @updatedAt
-    Doador           Doador?    @relation(fields: [doadorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    doadorId         String?
+    Doador           Doador     @relation(fields: [doadorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    doadorId         String
     Pagamento        Pagamento?
 
     @@map("doacoes")

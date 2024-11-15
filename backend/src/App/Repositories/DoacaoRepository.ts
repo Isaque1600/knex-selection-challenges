@@ -3,7 +3,7 @@ import { API_URL, chave_pix } from "@/Lib/envVariables";
 import { prisma } from "@/Lib/prisma";
 import { MercadoPagoAdapter } from "@/Services/MercadoPagoAdapter";
 import { PaymentClient } from "@/Services/PaymentCLient";
-import { Status } from "@prisma/client";
+import { Prisma, Status } from "@prisma/client";
 import { addDays, addMinutes, formatDate } from "date-fns";
 import { PaymentResponse } from "mercadopago/dist/clients/payment/commonTypes";
 import { Doacao } from "../Models/Doacao";
@@ -78,19 +78,31 @@ export class DoacaoRepository {
   }
 
   static async getDoacao(id: string) {
-    const doacao = await Doacao.get(id);
+    const doacao = Doacao.get(id);
 
     if (!doacao) {
       throw new Error("Doacao nao encontrada");
     }
 
-    const pagamento = await Pagamento.getByDoacaoId(id);
+    return doacao;
+  }
+
+  static async getDoacaoAndPagamento(id: string) {
+    const doacao = Doacao.get(id);
+
+    if (!doacao) {
+      throw new Error("Doacao nao encontrada");
+    }
+
+    const pagamento = Pagamento.getByDoacaoId(id);
 
     if (!pagamento) {
       throw new Error("Pagamento nao encontrado");
     }
 
-    return { doacao, pagamento };
+    const result = await Promise.all([doacao, pagamento]);
+
+    return { doacao: result[0], pagamento: result[1] };
   }
 
   static async updateDoacao(
@@ -126,7 +138,7 @@ export class DoacaoRepository {
   }
 
   static async realizarPagamento(doacaoId: string) {
-    const { doacao, pagamento } = await this.getDoacao(doacaoId);
+    const { doacao, pagamento } = await this.getDoacaoAndPagamento(doacaoId);
 
     if (!doacao || !pagamento) {
       throw new Error("Doacao nao encontrada");
@@ -183,7 +195,7 @@ export class DoacaoRepository {
   }
 
   static async deleteDoacao(docaoId: string) {
-    const { doacao, pagamento } = await this.getDoacao(docaoId);
+    const { doacao, pagamento } = await this.getDoacaoAndPagamento(docaoId);
 
     return await prisma.$transaction(async (tx) => {
       const deleteDoacao = Doacao.delete(doacao.id);
@@ -195,5 +207,37 @@ export class DoacaoRepository {
 
       return { message: "Pagamento da doacao cancelado com sucesso!", code: "OK" };
     });
+  }
+
+  static async filteredGetAll(
+    filter?: "periodo" | "valor" | undefined,
+    orderBy?: "valor" | "status" | "data_criacao" | "data_confirmacao" | undefined,
+    start?: string | undefined,
+    end?: string | undefined,
+    status?: Status | undefined,
+  ) {
+    const where: Prisma.DoacaoWhereInput = {
+      status: status || undefined,
+      data_criacao:
+        filter === "periodo"
+          ? {
+              gte: start ? new Date(start) : undefined,
+              lte: end ? new Date(end) : undefined,
+            }
+          : undefined,
+      valor:
+        filter === "valor"
+          ? {
+              gte: start || undefined,
+              lte: end || undefined,
+            }
+          : undefined,
+    };
+
+    const orderByParams: Prisma.DoacaoOrderByWithRelationInput = {
+      [orderBy || "data_criacao"]: "desc",
+    };
+
+    return await Doacao.getAll(where, orderByParams);
   }
 }

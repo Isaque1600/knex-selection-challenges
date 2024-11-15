@@ -1,8 +1,8 @@
 import { CreateDoacaoBody, UpdateDoacaoBody } from "@/Interfaces/DoacaoBody";
+import { Status } from "@prisma/client";
 import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { Request, Response } from "express";
-import { ZodError } from "zod";
-import { Doacao } from "../Models/Doacao";
+import { z, ZodError } from "zod";
 import { DoacaoRepository } from "../Repositories/DoacaoRepository";
 
 export class DoacaoController {
@@ -42,7 +42,23 @@ export class DoacaoController {
         return;
       }
 
-      const response = await Doacao.getAll();
+      const getParams = z
+        .object({
+          filter: z.enum(["periodo", "valor"]).optional(),
+          orderBy: z.enum(["valor", "status", "data_criacao", "data_confirmacao"]).optional(),
+          start: z.string().optional(),
+          end: z.string().optional(),
+          status: z.nativeEnum(Status).optional(),
+        })
+        .parse(req.query);
+
+      const response = await DoacaoRepository.filteredGetAll(
+        getParams.filter,
+        getParams.orderBy,
+        getParams.start,
+        getParams.end,
+        getParams.status,
+      );
 
       res.json(response).status(200);
       return;

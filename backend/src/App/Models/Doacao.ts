@@ -58,8 +58,11 @@ export class Doacao {
     });
   }
 
-  static async getAll() {
-    return prisma.doacao.findMany();
+  static async getAll(where?: Prisma.DoacaoWhereInput, orderBy?: Prisma.DoacaoOrderByWithRelationInput) {
+    return prisma.doacao.findMany({
+      where,
+      orderBy,
+    });
   }
 
   static async delete(id: string, tx?: Prisma.TransactionClient) {

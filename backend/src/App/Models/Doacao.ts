@@ -1,36 +1,43 @@
 import { prisma } from "@/Lib/prisma";
-import { Status } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
+import { Prisma, Status } from "@prisma/client";
 
 type DoacaoType = {
-  valor: Decimal;
+  valor: number;
   mensagem?: string;
   doadorId: string;
   status?: Status;
 };
 
 export class Doacao {
-  static async create({ valor, mensagem, doadorId, status = Status.PENDENTE }: DoacaoType) {
-    return await prisma.doacao.create({
+  static async create(
+    { valor, mensagem, doadorId, status = Status.PENDENTE }: DoacaoType,
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx || prisma;
+
+    return await client.doacao.create({
       data: {
         valor,
         mensagem,
         status,
         data_confirmacao: null,
-        doadorId,
+        Doador: {
+          connect: {
+            id: doadorId,
+          },
+        },
       },
     });
   }
 
   static async update(
     id: string,
-    valor?: Decimal,
-    mensagem?: string,
-    status?: Status,
-    data_confirmacao?: Date,
-    doadorId?: string,
+    { valor, mensagem, status, doadorId }: { valor?: number; mensagem?: string; status?: Status; doadorId?: string },
+    tx?: Prisma.TransactionClient,
   ) {
-    return prisma.doacao.update({
+    const client = tx || prisma;
+
+    return await client.doacao.update({
       where: {
         id,
       },
@@ -38,12 +45,7 @@ export class Doacao {
         valor,
         mensagem,
         status,
-        data_confirmacao,
-        Doador: {
-          connect: {
-            id: doadorId,
-          },
-        },
+        Doador: { connect: { id: doadorId } },
       },
     });
   }
@@ -60,8 +62,10 @@ export class Doacao {
     return prisma.doacao.findMany();
   }
 
-  static async delete(id: string) {
-    return prisma.doacao.delete({
+  static async delete(id: string, tx?: Prisma.TransactionClient) {
+    const client = tx || prisma;
+
+    return client.doacao.delete({
       where: {
         id,
       },

@@ -1,8 +1,14 @@
 import { prisma } from "@/Lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export class Doador {
-  static async create({ nome, email, telefone }: { nome: string; email: string; telefone: string }) {
-    return await prisma.doador.create({
+  static async create(
+    { nome, email, telefone }: { nome: string; email: string; telefone: string },
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx || prisma;
+
+    return await client.doador.create({
       data: {
         nome,
         email,
@@ -11,8 +17,14 @@ export class Doador {
     });
   }
 
-  static async update(id: string, { nome, email, telefone }: { nome?: string; email?: string; telefone?: string }) {
-    return await prisma.doador.update({
+  static async update(
+    id: string,
+    { nome, email, telefone }: { nome?: string; email?: string; telefone?: string },
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx || prisma;
+
+    return await client.doador.update({
       where: {
         id,
       },
@@ -36,8 +48,10 @@ export class Doador {
     return await prisma.doador.findMany();
   }
 
-  static async delete(id: string) {
-    return await prisma.doador.delete({
+  static async delete(id: string, tx?: Prisma.TransactionClient) {
+    const client = tx || prisma;
+
+    return await client.doador.delete({
       where: {
         id,
       },

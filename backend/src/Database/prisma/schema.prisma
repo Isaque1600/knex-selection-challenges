@@ -27,14 +27,15 @@ model Doador {
 
 model Pagamento {
     id               String    @id @default(uuid())
+    paymentId        String
     chave_pix        String
-    qr_code          Json
+    qr_code          String
     status           Status    @default(PENDENTE)
     data_criacao     DateTime  @default(now())
-    data_expiracao   DateTime?
+    data_expiracao   DateTime
     data_confirmacao DateTime?
     updated_at       DateTime  @updatedAt
-    Doacao           Doacao    @relation(fields: [doacaoId], references: [id])
+    Doacao           Doacao    @relation(fields: [doacaoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     doacaoId         String    @unique
 
     @@map("pagamentos")
@@ -48,7 +49,7 @@ model Doacao {
     data_criacao     DateTime   @default(now())
     data_confirmacao DateTime?
     updated_at       DateTime   @updatedAt
-    Doador           Doador?    @relation(fields: [doadorId], references: [id])
+    Doador           Doador?    @relation(fields: [doadorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     doadorId         String?
     Pagamento        Pagamento?
 
@@ -59,4 +60,5 @@ enum Status {
     PENDENTE
     CONFIRMADO
     CANCELADO
+    EXPIRADO
 }

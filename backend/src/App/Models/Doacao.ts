@@ -45,7 +45,7 @@ export class Doacao {
         valor,
         mensagem,
         status,
-        Doador: { connect: { id: doadorId } },
+        doadorId,
       },
     });
   }

@@ -74,11 +74,7 @@ export class Pagamento {
         status,
         data_expiracao,
         data_confirmacao,
-        Doacao: {
-          connect: {
-            id: doacaoId,
-          },
-        },
+        doacaoId,
       },
     });
   }

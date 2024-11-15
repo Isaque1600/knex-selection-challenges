@@ -6,6 +6,7 @@ export const DoacaoRoutes = express.Router();
 DoacaoRoutes.post("/", DoacaoController.create);
 DoacaoRoutes.get("/", DoacaoController.read);
 DoacaoRoutes.get("/:doacaoId", DoacaoController.read);
-DoacaoRoutes.put("/:doacaoId", DoacaoController.update);
+DoacaoRoutes.patch("/:doacaoId", DoacaoController.update);
 DoacaoRoutes.delete("/:doacaoId", DoacaoController.delete);
 DoacaoRoutes.post("/realizar-pagamento/:doacaoId", DoacaoController.realizarPagamento);
+DoacaoRoutes.put("/cancelar/:doacaoId", DoacaoController.cancelDoacao);

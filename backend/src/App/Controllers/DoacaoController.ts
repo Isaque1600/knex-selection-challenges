@@ -156,6 +156,38 @@ export class DoacaoController {
       res.json({ message: "Ação nao encontrada" }).status(404);
       return;
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        console.log(error);
+
+        if (error.code === "P2025") {
+          res.status(404).json({ message: "Doação não encontrada" });
+          return;
+        }
+      }
+
+      res.json(error).status(500);
+      return;
+    }
+  }
+
+  static async cancelDoacao(req: Request, res: Response) {
+    try {
+      const { doacaoId } = req.params;
+
+      const response = await DoacaoRepository.cancelDoacao(doacaoId);
+
+      res.json(response).status(200);
+      return;
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          res.status(404).json({ message: "Doação não encontrada" });
+          return;
+        }
+      }
+
       res.json(error).status(500);
       return;
     }

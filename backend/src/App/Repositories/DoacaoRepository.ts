@@ -160,7 +160,7 @@ export class DoacaoRepository {
 
     const currentDate = new Date();
 
-    if (pagamento.data_criacao > addMinutes(currentDate, 15)) {
+    if (pagamento.data_criacao > addMinutes(currentDate, 15) || pagamento.status === Status.EXPIRADO) {
       const deletePagamento = Pagamento.update(pagamento.id, { status: Status.EXPIRADO });
       const deleteDoacao = Doacao.update(doacao.id, { status: Status.EXPIRADO });
 
@@ -205,8 +205,38 @@ export class DoacaoRepository {
 
       await Promise.all([deleteDoacao, deletePayment]);
 
-      return { message: "Pagamento da doacao cancelado com sucesso!", code: "OK" };
+      return { message: "Pagamento da doacao deletado com sucesso!", code: "OK" };
     });
+  }
+
+  static async cancelDoacao(doacaoId: string) {
+    const { doacao, pagamento } = await this.getDoacaoAndPagamento(doacaoId);
+
+    if (doacao.status !== Status.PENDENTE) {
+      return {
+        message: "Pagamento da doacao nao pode ser cancelado, pois a doação não está mais pendente",
+        code: "NOT PENDING",
+      };
+    }
+
+    const deleteDoacao = await prisma.$transaction(async (tx) => {
+      const updateDoacao = Doacao.update(doacao.id, { status: Status.CANCELADO });
+      const updatePagamento = Pagamento.update(pagamento.id, { status: Status.CANCELADO });
+
+      return await Promise.all([updateDoacao, updatePagamento]);
+    });
+
+    if (!deleteDoacao) {
+      throw new Error("Doacao nao encontrada");
+    }
+    const paymentClient = new PaymentClient(new MercadoPagoAdapter());
+    const cancelPayment = await paymentClient.cancelPayment(pagamento.paymentId);
+
+    if (!cancelPayment) {
+      throw new Error("Não foi possivel cancelar o pagamento");
+    }
+
+    return { message: "Pagamento da doacao cancelado com sucesso!", code: "OK" };
   }
 
   static async filteredGetAll(

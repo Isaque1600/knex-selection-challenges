@@ -1,5 +1,5 @@
 import { PaymentBody } from "@/Interfaces/PaymentAdapter";
-import { API_URL, chave_pix } from "@/Lib/envVariables";
+import { API_URL } from "@/Lib/envVariables";
 import { prisma } from "@/Lib/prisma";
 import { MercadoPagoAdapter } from "@/Services/MercadoPagoAdapter";
 import { PaymentClient } from "@/Services/PaymentCLient";
@@ -44,7 +44,7 @@ export class DoacaoRepository {
         },
       };
 
-      const idempotencyKey = `${doacao.id}-${Date.now()}`;
+      const idempotencyKey = `${doacao.id}`;
 
       const paymentClient = new PaymentClient(new MercadoPagoAdapter());
 
@@ -59,10 +59,10 @@ export class DoacaoRepository {
         qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64,
       };
 
-      const pagamento = await Pagamento.create(
+      await Pagamento.create(
         {
           paymentId: payment.id!.toString(),
-          chave_pix: chave_pix || "",
+          chave_pix: qr_code.qr_code || "",
           doacaoId: doacao.id,
           qr_code: qr_code.qr_code_base64 || "",
           status: paymentStatus[payment.status!] as Status,

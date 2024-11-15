@@ -30,10 +30,10 @@ export class MercadoPagoAdapter implements PaymentAdapter {
   }
 
   async getPayment(id: string): Promise<PaymentResponse> {
-    return await this.payment.get({ id, requestOptions: { timeout: 5000, idempotencyKey: `${id}-${Date.now()}` } });
+    return await this.payment.get({ id, requestOptions: { timeout: 5000, idempotencyKey: `${id}` } });
   }
 
   async cancelPayment(id: string): Promise<PaymentResponse> {
-    return await this.payment.cancel({ id, requestOptions: { timeout: 5000, idempotencyKey: `${id}-${Date.now()}` } });
+    return await this.payment.cancel({ id, requestOptions: { timeout: 5000, idempotencyKey: `${id}` } });
   }
 }

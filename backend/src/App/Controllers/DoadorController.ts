@@ -124,4 +124,25 @@ export class DoadorController {
       return;
     }
   }
+
+  static async getDoacoes(req: Request, res: Response) {
+    try {
+      const { doadorId } = req.params;
+
+      const response = await Doador.getDoacoes(doadorId);
+
+      res.json(response).status(200);
+      return;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          res.status(404).json({ message: "Doador não encontrado" });
+          return;
+        }
+      }
+
+      res.json(error).status(500);
+      return;
+    }
+  }
 }

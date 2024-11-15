@@ -57,4 +57,15 @@ export class Doador {
       },
     });
   }
+
+  static async getDoacoes(id: string) {
+    return await prisma.doador.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        Doacao: true,
+      },
+    });
+  }
 }

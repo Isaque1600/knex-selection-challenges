@@ -1,0 +1,18 @@
+FROM node:lts
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN pnpm install
+
+COPY . .
+
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=root
+ENV POSTGRES_DB=knexDB
+ENV POSTGRES_HOST=postgres
+
+EXPOSE 5432
+
+CMD ["pnpm", "run", "dev"]

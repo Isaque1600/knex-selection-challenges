@@ -12,7 +12,7 @@ export class DoacaoController {
 
       const response = await DoacaoRepository.createDoacao(doacao);
 
-      res.json(response).status(201);
+      res.json(response).status(200);
       return;
     } catch (error) {
       console.log(error);

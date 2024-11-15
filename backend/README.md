@@ -1,123 +1,575 @@
 # Teste Técnico - Backend
+
 > Knex Empresa Júnior de Computação
 
-## Avaliação
-Este teste é uma oportunidade para você demonstrar seus conhecimentos em desenvolvimento backend, modelagem de dados, e boas práticas de programação. Avaliaremos diversos aspectos do seu código e da implementação da solução. Lembrando que não é necessário concluir tudo do projeto, fazer o que conseguir!
+## Descrição
 
-## Instruções
-- Desenvolva a solução utilizando a linguagem e framework de sua preferência
-- Utilize qualquer ORM de sua escolha
-- Você pode utilizar quaisquer bibliotecas externas que considerar necessárias
-- Adicione um arquivo README.md com instruções claras de como executar sua aplicação
-- O desenvolvimento deve ser individual
+API REST em NodeJS para geranciar as doações para os doguinhos que moram no campus 7 da UEPB, em Patos. Possuindo meios para gerenciar o historico de transações dos Doadores, as suas Doações e os Pagamentos realizados pelos mesmos.
 
-## Desafio
-Desenvolver uma API REST para gerenciar doações aos cães que habitam o campus universitário. O sistema deve gerenciar doadores, doações e pagamentos via PIX, mantendo um histórico das transações.
+## Conteudos
 
-### A solução deve focar em três pontos principais:
-1) CRUD completo de doações e doadores
-2) Validações robustas e tratamento de erros
-3) Integração com sistema PIX (mock) e gestão de status de pagamentos
+- [Requisitos](#requisitos)
+- [Passos Iniciais](#passos-iniciais)
+- [Comandos Node](#comandos-node)
 
-### Entidades e Relacionamentos
+- ### [Rotas](#rotas)
 
-**Doador**
-- id
-- nome
-- email
-- telefone
-- data_cadastro
-- Relacionamento: Um doador pode ter várias doações
+  - [Doador](#doador)
+  - [Doação](#doação)
+  - [Pagamentos](#pagamentos)
 
-**Doação**
-- id
-- valor
-- mensagem
-- status (pendente/confirmada/cancelada)
-- data_criacao
-- data_confirmacao
-- Relacionamento: Pertence a um doador
-- Relacionamento: Possui um pagamento
+- [Tecnologias](#tecnologias)
 
-**Pagamento**
-- id
-- chave_pix
-- qr_code
-- status
-- data_criacao
-- data_expiracao
-- data_confirmacao
-- Relacionamento: Pertence a uma doação
+---
 
-### Requisitos de Validação
+## Requisitos
 
-**Doador**
-- Nome: obrigatório, mínimo 3 caracteres
-- Email: obrigatório, formato válido, único no sistema
-- Telefone: opcional, formato brasileiro válido se fornecido
+- [NodeJS](https://nodejs.org)
+- [Docker](https://docker.com)
+- [Postgres](https://postgresql.org) caso não queira usar o docker
 
-**Doação**
-- Valor: obrigatório, mínimo R$ 5,00, máximo R$ 10.000,00
-- Status: transições válidas conforme regra de negócio
-- Mensagem: opcional, máximo 200 caracteres
+---
 
-**Pagamento**
-- Timeout de 15 minutos para pagamento
-- Validação de status conforme regras de negócio
-- Não permitir confirmar pagamentos expirados
+## Passos iniciais
 
-### Casos de uso
+```bash
 
-## Gestão de doadores
-- Deve ser possível cadastrar um novo doador no sistema
-- Deve ser possível consultar informações de um doador específico
-- Deve ser possível atualizar os dados cadastrais de um doador
-- Deve ser possível visualizar o histórico de doações de um doador
+# Clone o repositório do projeto
 
-## Gestão de doações
-- Deve ser possível um doador realizar uma ou mais doações
-- Deve ser possível consultar o status de uma doação específica
-- Deve ser possível filtrar doações por período, valor ou status
-- Deve ser possível cancelar uma doação pendente
-- Deve ser possível configurar doações recorrentes mensais
-- Deve ser possível adicionar uma mensagem personalizada à doação
+# Entre na pasta clonada
 
-## Gestão de Pagamentos
+# Utilize o gerenciador de pacotes de sua preferencia para instalar as dependências (neste projeto foi utilizado o pnpm)
+pnpm i
 
-- Deve ser possível gerar um QR Code PIX para uma doação
-- Deve ser possível confirmar o recebimento de um pagamento PIX
-- Deve ser possível consultar o status de um pagamento
-- Deve ser possível gerar nova chave PIX quando o pagamento expirar
-- Sistema deve notificar o doador após confirmação do pagamento
+# Construa a imagem
+docker-compose build
 
-### Regras de Negócio
-- Doação só pode ser cancelada se estiver pendente
-- Pagamento confirmado não pode ser alterado
-- Pagamento expirado deve gerar nova chave PIX
-- Sistema deve registrar todas as mudanças de status
+# Inicie o container em segundo plano
+docker-compose up -d
 
-## O que não pode faltar neste projeto?
-- Uso de Typescript
-- Código limpo e semântico
-- Uso de Eslint e Prettier
-- Tratamento de erros padronizado
-- Validação de dados
+# Popule o banco de dados
+pnpm prisma migrate dev
 
-## O que pode te destacar?
-- Docker
-- Deploy da aplicação
-- S.O.L.I.D.
-- Uso de PostgreSQL
-- Monitoramento de erros
-- Testes automatizados
-- Documentação detalhada
+# Inicie o projeto em modo de desenvolvimento
+pnpm run dev
 
-## Entrega
-- O código deve ser disponibilizado em um repositório público no GitHub
-- Inclua instruções detalhadas de como rodar o projeto
+# O servidor iniciara normalmente na porta 3000 (caso nenhuma outra tenha sido configurada no .env)
 
-## Prazo
-O prazo para entrega está especificado no edital do processo seletivo.
+# As requisições são feitas na url http://localhost:3000
 
-## Contato
-Em caso de dúvidas, utilize o canal de comunicação informado no início do processo seletivo.
+```
+
+---
+
+## Comandos Node
+
+```bash
+
+# Iniciar o servidor de testes
+pnpm run dev
+
+# Iniciar o servidor
+pnpm run start
+
+# Buildar o projeto
+pnpm run build
+
+```
+
+---
+
+## Rotas
+
+### Doador
+
+---
+
+### Criação de Doador - POST
+
+`http://localhost:3000/doador/`
+
+Body
+
+| Parametro | Tipo     | Descrição          |
+| --------- | -------- | ------------------ |
+| nome      | `string` | Nome do Doador     |
+| email     | `string` | Email do Doador    |
+| telefone  | `string` | Telefone do Doador |
+
+Correct Response - 201
+
+```json
+{
+  "id": "uuid_doador",
+  "nome": "nome_doador",
+  "email": "email_doador",
+  "telefone": "telefone_doador",
+  "data_cadastro": "data_cadastro_doador",
+  "updated_at": "data_update_doador"
+}
+```
+
+### Buscar os Doadores cadastrados - GET
+
+`http://localhost:3000/doador/`
+
+Correct Response - 200
+
+```json
+[
+  {
+    "id": "uuid_doador",
+    "nome": "nome_doador",
+    "email": "email_doador",
+    "telefone": "telefone_doador",
+    "data_cadastro": "data_cadastro_doador",
+    "updated_at": "data_update_doador"
+  },
+  ...
+]
+```
+
+### Buscar Doador especifico - GET
+
+`http://localhost:3000/doador/:doadorId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doadorId\* | `string` | UUID do Doador |
+
+Correct Response - 200
+
+```json
+[
+  {
+    "id": "uuid_doador",
+    "nome": "nome_doador",
+    "email": "email_doador",
+    "telefone": "telefone_doador",
+    "data_cadastro": "data_cadastro_doador",
+    "updated_at": "data_update_doador"
+  }
+]
+```
+
+### Modificar Doador - PATCH
+
+`http://localhost:3000/doador/:doadorId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doadorId\* | `string` | UUID do Doador |
+
+Body
+
+| Parametro | Tipo     | Descrição          |
+| --------- | -------- | ------------------ |
+| nome?     | `string` | Nome do Doador     |
+| email?    | `string` | Email do Doador    |
+| telefone? | `string` | Telefone do Doador |
+
+Correct Response - 200
+
+```json
+[
+  {
+    "id": "uuid_doador",
+    "nome": "nome_doador",
+    "email": "email_doador",
+    "telefone": "telefone_doador",
+    "data_cadastro": "data_cadastro_doador",
+    "updated_at": "data_update_doador"
+  }
+]
+```
+
+### Deletar Doador - DELETE
+
+`http://localhost:3000/doador/:doadorId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doadorId\* | `string` | UUID do Doador |
+
+Correct Response - 200
+
+```json
+{
+  "message": "Doador deletado com sucesso!",
+  "doador": {
+    "id": "uuid_doador",
+    "nome": "nome_doador",
+    "email": "email_doador",
+    "telefone": "telefone_doador",
+    "data_cadastro": "data_cadastro_doador",
+    "updated_at": "data_update_doador"
+  }
+}
+```
+
+### Buscar doações do Doador - GET
+
+`http://localhost:3000/doador/:doadorId/doacoes`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doadorId\* | `string` | UUID do Doador |
+
+Correct Response - 200
+
+```json
+{
+  "Doacao": [
+    {
+      "id": "uuid_doador",
+      "nome": "nome_doador",
+      "email": "email_doador",
+      "telefone": "telefone_doador",
+      "data_cadastro": "data_cadastro_doador",
+      "updated_at": "data_update_doador"
+    }
+  ]
+}
+```
+
+---
+
+### Doação
+
+---
+
+### Fazer Doação - POST
+
+`http://localhost:3000/doacao/`
+
+Body
+
+| Parametro  | Tipo     | Descrição          |
+| ---------- | -------- | ------------------ |
+| valor\*    | `number` | Valor da Doação    |
+| mensagem?  | `string` | Mensagem da Doação |
+| doadorId\* | `string` | UUID do doador     |
+
+Correct Response - 201
+
+```json
+{
+  "doacao": {
+    "id": "uuid_doacao",
+    "valor": "valor_doacao",
+    "mensagem": "mensagem_doacao",
+    "status": "status_doacao",
+    "data_criacao": "data_criacao",
+    "data_confirmacao": "data_confirmacao",
+    "updated_at": "data_update",
+    "doadorId": "uuid_doador"
+  },
+  "pagamento": {
+    "qr_code": {
+      "qr_code": "chave_unica_pagamento",
+      "qr_code_base64": "qr_code_base64"
+    }
+  }
+}
+```
+
+### Buscar os Doações cadastrados - GET
+
+`http://localhost:3000/doacao/`
+
+Parametros GET
+
+| Nome     | Tipo     | Descrição                                                                                |
+| -------- | -------- | ---------------------------------------------------------------------------------------- |
+| filter?  | `string` | Opção de filtro, podendo ser por período ou valor                                        |
+| orderBy? | `string` | Opção de ordenação, podendo ser por valor, status, data de criação e data de confirmação |
+| start?   | `string` | Valor de inicio da filtragem                                                             |
+| end?     | `string` | Valor limite da filtragem                                                                |
+| status?  | `string` | Caso queira filtrar por status também                                                    |
+
+Correct Response - 200
+
+```json
+[
+  {
+    "id": "uuid_doacao",
+    "valor": "valor_doacao",
+    "mensagem": "mensagem_doacao",
+    "status": "status_doacao",
+    "data_criacao": "data_criacao_doacao",
+    "data_confirmacao": "data_confirmacao",
+    "updated_at": "last_update_data",
+    "doadorId": "uuid_do_responsavel_pela_doacao"
+  },
+  ...
+]
+```
+
+### Buscar Doação especifico - GET
+
+`http://localhost:3000/doador/:doadorId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doadorId\* | `string` | UUID do Doador |
+
+Correct Response - 200
+
+```json
+{
+  "id": "uuid_doacao",
+  "valor": "valor_doacao",
+  "mensagem": "mensagem_doacao",
+  "status": "status_doacao",
+  "data_criacao": "data_criacao",
+  "data_confirmacao": "data_confirmacao",
+  "updated_at": "last_update_data",
+  "doadorId": "uuid_responsavel_pela_doacao"
+}
+```
+
+### Modificar Doador - PUT
+
+`http://localhost:3000/doador/:doadorId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doadorId\* | `string` | UUID do Doador |
+
+Body
+
+| Parametro | Tipo     | Descrição          |
+| --------- | -------- | ------------------ |
+| valor?    | `number` | Valor da Doação    |
+| mensagem? | `string` | Mensagem da Doação |
+| doadorId? | `string` | UUID do doador     |
+
+Correct Response - 200
+
+```json
+[
+  {
+    "id": "uuid_doador",
+    "nome": "nome_doador",
+    "email": "email_doador",
+    "telefone": "telefone_doador",
+    "data_cadastro": "data_cadastro_doador",
+    "updated_at": "data_update_doador"
+  }
+]
+```
+
+### Deletar Doação - DELETE
+
+`http://localhost:3000/doacao/:doacaoId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doacaoId\* | `string` | UUID da Doacao |
+
+Correct Response - 200
+
+```json
+{
+  "message": "Pagamento da doacao deletado com sucesso",
+  "code": "codigo_retorno"
+}
+```
+
+### Confirmar Pagamento da Doação - POST
+
+Essa também é a rota usada pela API de pagamentos para notificar a mudança de status no pagamento
+
+`http://localhost:3000/doador/realizar-pagamento/:doacaoId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doacaoId\* | `string` | UUID da Doação |
+
+Body
+
+| Parametro | Tipo     | Descrição                                           |
+| --------- | -------- | --------------------------------------------------- |
+| action\*  | `string` | Ação a ser realizada, normalmente `payment.updated` |
+
+Correct Response - 200
+
+```json
+{
+  "message": "Pagamento da doação realizada!",
+  "code": "OK"
+}
+```
+
+### Cancelar Doação - PUT
+
+`http://localhost:3000/doador/cancelar/:doacaoId`
+
+Parâmetros
+
+| Nome       | Tipo     | Descrição      |
+| ---------- | -------- | -------------- |
+| doacaoId\* | `string` | UUID da Doação |
+
+Correct Response - 200
+
+```json
+{
+  "message": "Pagamento Cancelado com sucesso!",
+  "code": "OK"
+}
+```
+
+---
+
+## Pagamentos
+
+---
+
+### Buscar Pagamentos - GET
+
+`http://localhost:3000/pagamento`
+
+Parametros GET
+
+| Nome     | Tipo     | Descrição                                                                                            |
+| -------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| filter?  | `string` | Opção de filtro, podendo ser por data de criação, data de expiração ou data de confirmação           |
+| orderBy? | `string` | Opção de ordenação, podendo ser por status, data de criação, data de confirmação e data de expiração |
+| start?   | `string` | Valor de inicio da filtragem                                                                         |
+| end?     | `string` | Valor limite da filtragem                                                                            |
+| status?  | `string` | Caso queira filtrar por status também                                                                |
+
+Correct Response - 200
+
+```json
+[
+    {
+        "id": "uuid_pagamento",
+        "paymentId": "id_pagamento_mercado_pago",
+        "chave_pix": "pix_chave_unica",
+        "qr_code": "qr_code_base64",
+        "status": "status_pagamento",
+        "data_criacao": "data_criacao",
+        "data_expiracao": "data_expiracao",
+        "data_confirmacao": "data_confirmacao",
+        "updated_at": "last_update_pagamento",
+        "doacaoId": "doacao_uuid"
+    },
+    ...
+]
+```
+
+### Buscar Pagamento - GET
+
+`http://localhost:3000/pagamento/:pagamentoId`
+
+Parâmetros
+
+| Nome          | Tipo     | Descrição         |
+| ------------- | -------- | ----------------- |
+| pagamentoId\* | `string` | UUID do Pagamento |
+
+Correct Response - 200
+
+```json
+{
+  "id": "uuid_pagamento",
+  "paymentId": "id_pagamento_mercado_pago",
+  "chave_pix": "pix_chave_unica",
+  "qr_code": "qr_code_base64",
+  "status": "status_pagamento",
+  "data_criacao": "data_criacao",
+  "data_expiracao": "data_expiracao",
+  "data_confirmacao": "data_confirmacao",
+  "updated_at": "last_update_pagamento",
+  "doacaoId": "doacao_uuid"
+}
+```
+
+### Buscar Status do Pagamento - GET
+
+`http://localhost:3000/pagamento/status/:pagamentoId`
+
+Parâmetros
+
+| Nome          | Tipo     | Descrição         |
+| ------------- | -------- | ----------------- |
+| pagamentoId\* | `string` | UUID do Pagamento |
+
+Correct Response - 200
+
+```json
+{
+  "status": "status_pagamento"
+}
+```
+
+### Buscar QRCode do Pagamento - GET
+
+`http://localhost:3000/pagamento/qr-code/:pagamentoId`
+
+Parâmetros
+
+| Nome          | Tipo     | Descrição         |
+| ------------- | -------- | ----------------- |
+| pagamentoId\* | `string` | UUID do Pagamento |
+
+Correct Response - 200
+
+```json
+{
+  "qr_code": "pix_chave_unica",
+  "qr_code_base64": "qr_code_base64"
+}
+```
+
+### Renovar o Pagamento Expirado - POST
+
+`http://localhost:3000/pagamento/regenerate/:pagamentoId`
+
+Parâmetros
+
+| Nome          | Tipo     | Descrição         |
+| ------------- | -------- | ----------------- |
+| pagamentoId\* | `string` | UUID do Pagamento |
+
+Correct Response - 200
+
+```json
+{
+  "qr_code": "pix_chave_unica",
+  "qr_code_base64": "qr_code_base64"
+}
+```
+
+---
+
+## Tecnologias
+
+No servidor foram utilizadas as seguintes tecnologias:
+
+- [Express](https://expressjs.com)
+- [Prisma](https://prisma.io)
+- [Zod](https://zod.dev)
+- [tsx](https://github.com/privatenumber/tsx)
+- [tsup](https://github.com/egoist/tsup)
+- [dotENV](https://github.com/motdotla/dotenv)
+- [MercadoPagoSDK](https://github.com/mercadopago/sdk-nodejs) para Node
+- [date-fns](https://github.com/date-fns/date-fns)

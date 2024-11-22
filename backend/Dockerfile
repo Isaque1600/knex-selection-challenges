@@ -4,15 +4,15 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN pnpm install
+RUN npm install
 
-COPY . .
+COPY . ./
 
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=root
 ENV POSTGRES_DB=knexDB
-ENV POSTGRES_HOST=postgres
+ENV POSTGRES_HOST=localhost
 
 EXPOSE 5432
 
-CMD ["pnpm", "run", "dev"]
+CMD ["npm", "run", "dev"]
